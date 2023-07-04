@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
 # Function to read different file types
 def read_file(file):
@@ -75,6 +76,26 @@ def plot_graph(data, graph_type, x_variables, y_variables):
 
     st.pyplot()
 
+# Function to perform custom calculations on selected columns using a user-provided formula
+def perform_custom_calculations(data, selected_columns, formula):
+    st.write("### Custom Calculations")
+
+    # Evaluate the formula using selected columns
+    try:
+        result = eval(formula, globals(), locals())
+        st.write("Custom Calculation Result:", result)
+
+        # Add the result as a new column
+        result_column_name = "Custom_Result"
+        data[result_column_name] = result
+
+        # Display the updated data with the custom result column
+        st.write("### Updated Data")
+        st.dataframe(data)
+
+    except Exception as e:
+        st.error("Error occurred during custom calculation:", str(e))
+
 # Streamlit web app
 def main():
     st.title("Excel-like Data Visualization and Calculations")
@@ -87,6 +108,15 @@ def main():
         if data is not None:
             display_data(data)
             perform_calculations(data)
+
+            st.write("### Custom Calculations")
+            st.write("Select columns and provide a custom formula:")
+
+            selected_columns = st.multiselect("Columns", options=data.columns)
+            formula = st.text_input("Formula", value="np.sum(selected_columns)")
+
+            if st.button("Perform Custom Calculation"):
+                perform_custom_calculations(data, selected_columns, formula)
 
             st.write("### Graph Visualizer")
             st.write("Select variables for visualization:")
